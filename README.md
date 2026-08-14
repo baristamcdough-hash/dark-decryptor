@@ -1,7 +1,7 @@
-# 🐋 PoriotCloud Vault
+# 🐋 PoriotCloud DarkTunnel Decryptor
 
 Decode `.dark` configs → get a **signed JSON file + a private Vault link** that
-**auto-destroys after 6 hours**. Monetized with Adsterra via an admin panel.
+**auto-destroys after 6 hours**. 
 Credits: **@Poriot_ke**.
 
 ```
@@ -139,6 +139,4 @@ python tests/test_server.py   # 45 checks: uploads, vault pages, expiry, admin, 
 
 - Decoding happens **in memory**; nothing is logged or stored beyond the vault
 - The vault API is locked behind `VAULT_API_TOKEN` (bot) — the public web upload
-  is rate-limited by nothing, so keep it on a hobby-scale service
-- Admin password and secrets live in Railway env vars — never in the repo
-- Vault IDs are 8-char base62 (`62^8` ≈ 218 trillion) — unguessable
+  
