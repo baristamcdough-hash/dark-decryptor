@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Vault {{ vid }} · PoriotCloud{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="crumb">vault / <b>{{ vid }}</b> · created {{ created_at|int|fmt_ts }} · expires {{ expires_at|int|fmt_ts }} · {{ views }} view{{ 's' if views != 1 }}</div>
+
+  <div class="vault-card">
+    <div class="v-head">
+      <div>
+        <div class="v-title">
+          {{ name }}
+          {% if cfg.get('config_type') %}<span class="badge">{{ cfg.config_type }}</span>{% endif %}
+          {% if cfg.get('security') %}<span class="badge reality">{{ cfg.security }}</span>{% endif %}
+        </div>
+        <div class="v-desc">
+          {% if cfg.get('address') %}{{ cfg.address }} : {{ cfg.get('port', '?') }}{% if cfg.get('sni') %} · sni {{ cfg.sni }}{% endif %}{% else %}decoded via Telegram bot{% endif %}
+        </div>
+      </div>
+      <div class="countdown">
+        <div class="cd-pill"><span class="spin">⏳</span> <span id="cd">--:--:--</span></div>
+        <div class="cd-track"><div class="cd-fill" id="cdFill"></div></div>
+        <div class="cd-note">self-destroys after 6 hours</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="copyBtn">📋 Copy JSON</button>
+    </div>
+
+    {% if ad.ad_enabled and ad.ad_position in ('top','all') %}
+    <div class="ad">
+      {% if ad.ad_code %}{{ ad.ad_code|safe }}{% else %}<b>Adsterra Ad Zone · 728 × 90</b><span class="tag">top banner · adsterra</span>{% endif %}
+    </div>
+    {% endif %}
+
+    <div class="json-wrap">
+      <div class="json-head">
+        <span>decoded_config.json <span class="dim">· signed</span></span>
+        <span class="dots"><i></i><i></i><i></i></span>
+      </div>
+      <div class="json-body">
+        <table class="code" id="code"></table>
+      </div>
+    </div>
+
+    <div class="sig-note">✍️ Signed by <b>@Poriot_ke</b> · PoriotCloud Vault · <span id="sigTime">—</span></div>
+
+    {% if ad.ad_enabled and ad.ad_position in ('bottom','all') %}
+    <div class="ad ad-bottom">
+      {% if ad.ad_code %}{{ ad.ad_code|safe }}{% else %}<b>Adsterra Ad Zone · 728 × 90</b><span class="tag">bottom banner · adsterra</span>{% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="foot">⚡ Decoded with <b>PoriotCloud Vault</b> — by @Poriot_ke<br>Files self-destroy after 6 hours · nothing is stored beyond that</div>
+</div>
+
+<script id="cfg" type="application/json">{{ config_text|tojson }}</script>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.__REMAINING = {{ remaining }};
+</script>
+{% endblock %}

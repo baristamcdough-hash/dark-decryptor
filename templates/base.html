@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}PoriotCloud Vault{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="nav">
+  <div class="logo"><div class="mark">P</div>PoriotCloud <span class="logo-accent">Vault</span></div>
+  <div class="nav-right"><a href="/admin">Admin ⚙️</a></div>
+</div>
+{% block content %}{% endblock %}
+{% block overlay %}{% endblock %}
+{% block scripts %}{% endblock %}
+<script src="/static/app.js"></script>
+</body>
+</html>

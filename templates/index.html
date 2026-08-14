@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}PoriotCloud Vault — decode .dark files{% endblock %}
+{% block content %}
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">⚡ Telegram bot · Web · 6h auto-destroy</div>
+    <h1>Decode <span class="grad">.dark</span> configs.<br>Get a private <span class="grad">Vault link</span>.</h1>
+    <p class="hero-sub">
+      Drop your <b>brasil_vip.dark</b> here (or send it to our Telegram bot) — we decrypt it
+      in memory, sign it with credits, and give you a link that
+      <b>self-destroys after 6 hours</b>.
+    </p>
+    <div class="dropzone" id="dropzone">
+      <input type="file" id="fileInput" accept=".dark" hidden>
+      <div class="dz-ico">📎</div>
+      <div class="dz-title">Drop a <b>.dark</b> file here</div>
+      <div class="dz-sub">or click to browse · max 8 MB</div>
+      <div class="dz-btn">Choose file</div>
+    </div>
+    <div class="hero-note">🔒 In-memory only · no storage beyond the 6h vault · signed by <b>@Poriot_ke</b></div>
+  </div>
+</div>
+
+{% if ad.ad_enabled and ad.ad_position in ('top','all') %}
+<div class="wrap"><div class="ad"><b>Adsterra Ad Zone · 728 × 90</b><span class="tag">top banner</span></div></div>
+{% endif %}
+
+<div class="wrap howto">
+  <div class="how-card"><div class="how-ico">🤖</div><div class="how-t">1 · Send to the bot</div><div class="how-s">Drop the file in Telegram or paste a darktunnel:// link</div></div>
+  <div class="how-card"><div class="how-ico">🔓</div><div class="how-t">2 · Instant decode</div><div class="how-s">AES-256-CFB + MessagePack, animated progress bar</div></div>
+  <div class="how-card"><div class="how-ico">🔗</div><div class="how-t">3 · Vault link</div><div class="how-s">Unique short link · JSON + copy · gone in 6 hours</div></div>
+</div>
+
+<div class="foot">⚡ Decoded with <b>PoriotCloud Vault</b> — by @Poriot_ke<br>Files self-destroy after 6 hours · nothing is stored beyond that</div>
+
+{% block overlay %}
+<div class="overlay" id="decodeOverlay" hidden>
+  <div class="ov-card">
+    <div class="ov-title" id="ovTitle">🔓 Decoding <span id="ovFile">file.dark</span>…</div>
+    <div class="ov-track"><div class="ov-fill" id="ovFill"></div></div>
+    <div class="ov-row"><span class="ov-pct" id="ovPct">0%</span><span class="ov-stage" id="ovStage">Starting…</span></div>
+    <div class="ov-note">in memory · signed by @Poriot_ke</div>
+  </div>
+</div>
+{% endblock %}
+{% endblock %}

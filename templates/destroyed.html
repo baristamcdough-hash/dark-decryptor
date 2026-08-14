@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Vault destroyed · PoriotCloud{% endblock %}
+{% block content %}
+<div class="wrap" style="max-width:640px">
+  <div class="vault-card destroyed">
+    <div class="destroyed-ico">💥</div>
+    <h1 class="destroyed-title">This vault has been destroyed</h1>
+    <p class="destroyed-sub">
+      Every PoriotCloud vault <b>auto-destroys 6 hours</b> after it's created.
+      This one already expired — its file was wiped from disk.
+    </p>
+    <div class="actions" style="justify-content:center">
+      <a class="btn btn-primary" href="/">← Decode another file</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

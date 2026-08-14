@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin · PoriotCloud Vault{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="m-head">
+    <div>
+      <h1>📊 Overview</h1>
+      <div class="sub">vault.poriot.ke · everything running smoothly</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <a class="btn btn-ghost" href="/admin/logout">↩️ Log out</a>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="l">Total uploads</div><div class="n">{{ stats.total }}</div><div class="d violet">6h TTL · auto-destroy</div></div>
+    <div class="stat"><div class="l">Active vaults</div><div class="n">{{ stats.active }}</div><div class="d up">expired are wiped</div></div>
+    <div class="stat"><div class="l">Expiring today</div><div class="n">{{ vaults|selectattr('expired','equalto',false)|selectattr('remaining_h','lt',24)|list|length }}</div><div class="d warn">will self-destroy within 24h</div></div>
+    <div class="stat"><div class="l">Total views</div><div class="n">{{ stats.views }}</div><div class="d up">vault pages served</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>📢 Adsterra Ad Manager</h2>
+      <form method="post" action="/admin/settings">
+        <div class="ad-toggle">
+          <div>
+            <div class="t">Monetization</div>
+            <div class="s">Inject Adsterra zones into every vault page</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" name="ad_enabled" value="1" {{ 'checked' if settings.ad_enabled == '1' }}>
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="field">
+          <label>Ad placement</label>
+          <div class="seg" data-seg="ad_position">
+            <button type="button" data-val="top" {{ 'class=on' if settings.ad_position == 'top' }}>Top banner</button>
+            <button type="button" data-val="bottom" {{ 'class=on' if settings.ad_position == 'bottom' }}>Bottom banner</button>
+            <button type="button" data-val="all" {{ 'class=on' if settings.ad_position == 'all' }}>Both</button>
+          </div>
+          <input type="hidden" name="ad_position" id="ad_position" value="{{ settings.ad_position }}">
+        </div>
+        <div class="field">
+          <label>Adsterra zone code</label>
+          <textarea name="ad_code" placeholder="Paste your Adsterra zone <script>/<iframe> snippet here…">{{ settings.ad_code }}</textarea>
+        </div>
+        <div class="save-row">
+          <span class="saved" id="saved">✅ Saved</span>
+          <button class="btn btn-primary" type="submit">💾 Save settings</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>🗄️ Recent vaults</h2>
+      {% if vaults %}
+      <table>
+        <tr><th>ID</th><th>Name</th><th>Expires</th><th>Views</th><th>Status</th><th></th></tr>
+        {% for v in vaults %}
+        <tr>
+          <td><a href="/v/{{ v.id }}" class="vlink">{{ v.id }}</a></td>
+          <td class="name">{{ v.name[:26] }}{% if v.name|length > 26 %}…{% endif %}</td>
+          <td>{{ v.expires_at_iso }}</td>
+          <td>{{ v.views }}</td>
+          <td>{% if v.expired %}<span class="st dead">destroyed</span>{% elif v.remaining_h < 3 %}<span class="st warn">expiring</span>{% else %}<span class="st ok">active</span>{% endif %}</td>
+          <td>
+            <form method="post" action="/admin/delete/{{ v.id }}" onsubmit="return confirm('Delete this vault now?')">
+              <button class="del" type="submit">✕</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <div class="empty">No vaults yet — decode a file and it shows up here.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

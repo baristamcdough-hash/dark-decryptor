@@ -1,0 +1,7 @@
+data/
+data_smoke/
+__pycache__/
+*.pyc
+shots/
+token.txt
+.env

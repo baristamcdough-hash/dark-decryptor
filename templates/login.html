@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Admin login · PoriotCloud Vault{% endblock %}
+{% block content %}
+<div class="wrap login-wrap">
+  <div class="vault-card login-card">
+    <div class="login-ico">🔐</div>
+    <h1 class="login-title">Admin login</h1>
+    {% if error %}<div class="login-error">{{ error }}</div>{% endif %}
+    <form method="post" action="/admin/login">
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" class="text-input" placeholder="••••••••" autofocus required>
+      </div>
+      <button class="btn btn-primary" style="width:100%;justify-content:center" type="submit">Enter admin panel</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
