@@ -11,13 +11,18 @@ Two run modes:
 """
 import io
 import json
+import logging
 import os
 import re
+import urllib.error
+import urllib.request
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
 import decoder
+
+log = logging.getLogger("poriotcloud-bot")
 
 MAX_FILE_BYTES = 8 * 1024 * 1024
 MAX_TEXT_LEN = 512 * 1024
@@ -95,11 +100,13 @@ async def upload_to_vault(config: dict, fname: str) -> str | None:
     """POST the signed config to the vault server. Returns the vault URL."""
     base = vault_api_url()
     token = vault_api_token()
-    if not base or not token:
+    if not base:
+        log.warning("vault upload skipped: VAULT_API_URL/VAULT_PUBLIC_URL not set")
+        return None
+    if not token:
+        log.warning("vault upload skipped: VAULT_API_TOKEN not set")
         return None
     try:
-        import urllib.request
-
         signed = decoder.sign_result(config, by=CREDIT)
         body = json.dumps({"name": fname, "config": signed}).encode("utf-8")
         req = urllib.request.Request(
@@ -110,8 +117,18 @@ async def upload_to_vault(config: dict, fname: str) -> str | None:
         )
         with urllib.request.urlopen(req, timeout=15) as resp:
             data = json.loads(resp.read().decode("utf-8"))
-        return data.get("url")
-    except Exception:
+        url = data.get("url")
+        if not url:
+            log.warning("vault upload: no 'url' in response: %s", data)
+        return url
+    except urllib.error.HTTPError as exc:
+        log.warning(
+            "vault upload failed: HTTP %s — %s (is VAULT_API_TOKEN correct?)",
+            exc.code, exc.read()[:200].decode("utf-8", "ignore"),
+        )
+        return None
+    except Exception as exc:
+        log.warning("vault upload failed: %r (URL=%s)", exc, base)
         return None
 
 
@@ -269,6 +286,7 @@ async def run_bot_async() -> None:
 
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
     application = build_application(load_token())
     print("🤖 PoriotCloud Vault bot running… (Ctrl+C to stop)")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
