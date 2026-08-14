@@ -136,30 +136,34 @@ async def _decode_and_reply(update: Update, payload, status, fname: str):
         await status.edit_text(f"❌ Unexpected error: {exc}")
         return
 
-    # stage 4: done + send everything
+    # stage 4: done — the vault link is the ONLY delivery channel.
+    # The file lives on the vault page (where the ad slots are).
     await _edit_progress(status, *STAGES[4], fname)
 
     summary = decoder.summarize(signed)
     await msg.reply_text(summary)
 
-    buffer = io.BytesIO(
-        json.dumps(signed, indent=2, ensure_ascii=False).encode("utf-8")
-    )
-    await msg.reply_document(
-        document=buffer,
-        filename=decoder.suggest_filename(signed),
-        caption="📦 Full decoded config · signed by @Poriot_ke",
-    )
-
     url = await upload_to_vault(signed, fname)
     if url:
         await msg.reply_text(
-            f"🔗 <b>PoriotCloud Vault link</b>\n{url}\n\n"
-            "⏳ Auto-destroys in <b>6 hours</b> · JSON + copy on the page",
+            f"🔗 <b>Your decrypted config</b>\n{url}\n\n"
+            "📄 JSON viewer + copy + download on the page\n"
+            "⏳ Auto-destroys in <b>6 hours</b>\n"
+            "⚡ Signed by @Poriot_ke",
             parse_mode="HTML",
         )
     else:
-        await msg.reply_text("ℹ️ Vault upload unavailable — file above is all you get.")
+        # Last-resort fallback: vault unreachable → send the file so the user
+        # isn't left empty-handed. (Rare — vault link is the primary delivery.)
+        buffer = io.BytesIO(
+            json.dumps(signed, indent=2, ensure_ascii=False).encode("utf-8")
+        )
+        await msg.reply_document(
+            document=buffer,
+            filename=decoder.suggest_filename(signed),
+            caption="ℹ️ Vault unavailable right now — signed config attached. "
+                    "Re-send in a bit for a vault link.",
+        )
 
 
 async def handle_document(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -218,9 +222,8 @@ HELP_TEXT = (
     "Send me a <code>.dark</code> config file (or paste a "
     "<code>darktunnel://…</code> link) and get:\n"
     "  • a summary card\n"
-    "  • the signed <b>.json</b> file\n"
-    "  • a <b>PoriotCloud Vault link</b> — JSON page with copy, "
-    "auto-destroys after 6h\n\n"
+    "  • a <b>PoriotCloud Vault link</b> — the decrypted config lives on "
+    "that page (JSON viewer + copy + download), auto-destroys after 6h\n\n"
     "Commands:\n"
     "  /start — intro\n  /help — this message\n"
     "  /decode — decode the file you replied to\n\n"

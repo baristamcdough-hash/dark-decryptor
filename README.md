@@ -21,8 +21,9 @@ poriotcloud/
 
 1. **Telegram bot** receives a `.dark` file (or pasted `darktunnel://` link)
 2. Animated progress bar (`▰▰▰▰▱▱ 62%`) — message edited ~5× while decoding
-3. Bot replies with: summary card **+ signed `.json` file + Vault link** (bot = both)
-4. Vault link → page shows the highlighted JSON with **Copy** button
+3. Bot replies with: summary card **+ Vault link** — the file lives on the
+   vault page (that's where the ads are), never in the chat
+4. Vault link → page shows the highlighted JSON with **Copy** + **Download**
 5. **Auto-destroy after 6h** — file wiped from disk (cleanup loop + on-read check)
 
 ## Deploy to Railway (hobby plan)
