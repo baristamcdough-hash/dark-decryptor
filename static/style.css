@@ -19,6 +19,40 @@ body::before{
     radial-gradient(900px 500px at 50% 120%, rgba(52,211,153,.05), transparent 60%);
 }
 
+/* icons (SVG sprite, stroke = currentColor) */
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;vertical-align:-.125em}
+.ic-xl{width:1.5em;height:1.5em}
+.btn .ic{width:1.1em;height:1.1em}
+.hero-badge{display:inline-flex;align-items:center;gap:7px}
+.dz-ico .ic{width:38px;height:38px;stroke-width:1.6}
+.how-ico .ic{width:30px;height:30px;color:var(--cyan)}
+.foot .ic{width:.95em;height:.95em;color:var(--violet);vertical-align:-.15em}
+.destroyed-ico .ic{width:52px;height:52px;stroke-width:1.5;color:var(--amber)}
+.login-ico .ic{width:44px;height:44px;stroke-width:1.5;color:var(--cyan)}
+.del{display:inline-flex}
+.del .ic{width:14px;height:14px}
+.cd-pill .ic{color:var(--red)}
+.sig-note .ic{color:var(--violet)}
+.m-head h1 .ic,.card h2 .ic{color:var(--cyan);vertical-align:-.18em}
+.nav-right .ic{vertical-align:-.15em}
+
+/* extra bottom ad slot */
+.ad-extra{margin-top:12px}
+
+/* toast (ad-gate feedback) */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(14px);
+  background:rgba(13,19,34,.96);border:1px solid rgba(34,211,238,.35);border-radius:14px;
+  color:var(--text);font-size:13px;font-weight:600;padding:13px 20px;z-index:200;
+  box-shadow:0 18px 50px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:.25s;max-width:min(92vw,480px);text-align:center;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast b{color:var(--cyan)}
+
+/* admin gate hints */
+.gate-hint{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:8px}
+.gate-hint b{color:var(--violet)}
+
 /* nav */
 .nav{
   position:sticky;top:0;z-index:10;backdrop-filter:blur(14px);
@@ -82,7 +116,8 @@ body::before{
 }
 .overlay[hidden]{display:none !important}
 .ov-card{width:min(520px,90vw);background:rgba(13,19,34,.95);border:1px solid var(--line);border-radius:22px;padding:34px;box-shadow:0 30px 90px rgba(0,0,0,.6)}
-.ov-title{font-size:16px;font-weight:800;margin-bottom:22px}
+.ov-title{font-size:16px;font-weight:800;margin-bottom:22px;display:flex;align-items:center;gap:9px}
+.ov-title .ic{color:var(--cyan)}
 .ov-title span{color:var(--cyan)}
 .ov-track{height:16px;border-radius:999px;background:#1d2b3a;overflow:hidden}
 .ov-fill{

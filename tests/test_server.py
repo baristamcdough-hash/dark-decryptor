@@ -198,6 +198,41 @@ def test_public_base_normalization():
         os.environ["VAULT_PUBLIC_URL"] = old or ""
 
 
+def test_ad_gate_and_extra_slot():
+    # configure redirect gate + ad link
+    client.post(
+        "/admin/settings",
+        data={
+            "ad_enabled": "1", "ad_position": "all", "ad_code": "<!--AD-->",
+            "ad_gate": "redirect", "ad_link": "https://ads.example/offer",
+            "ad_popunder_code": "",
+        },
+    )
+    vid = client.post("/api/vault", json={"name": "g", "config": CONFIG}, headers=TOKEN_HEADERS).json()["id"]
+    html = client.get(f"/v/{vid}").text
+    check("redirect gate on page", 'data-ad-gate="redirect"' in html)
+    check("ad link on page", "https://ads.example/offer" in html)
+    check("extra bottom ad slot present", "ad-extra" in html)
+    check("download button present", "Download .json" in html)
+    check("no emoji in page", "🔓" not in html and "⏳" not in html and "📋" not in html)
+
+    # popunder mode injects the snippet container
+    client.post(
+        "/admin/settings",
+        data={
+            "ad_enabled": "1", "ad_position": "all", "ad_code": "<!--AD-->",
+            "ad_gate": "popunder", "ad_link": "",
+            "ad_popunder_code": '<script data-cfasync="false" src="//pl123.adsterra.com/x/y/popunder.js" async></script>',
+        },
+    )
+    html2 = client.get(f"/v/{vid}").text
+    check("popunder code embedded", "popunder" in html2 and "pl123.adsterra.com" in html2)
+    check("popunder mode has no redirect link", 'data-ad-gate="popunder"' in html2)
+
+    # back to off for other tests
+    client.post("/admin/settings", data={"ad_enabled": "1", "ad_position": "all", "ad_code": "", "ad_gate": "off"})
+
+
 def main():
     print("══ PoriotCloud Vault server tests ══\n")
     test_bot_upload_and_vault_page()
@@ -209,6 +244,7 @@ def main():
     test_admin_flow()
     test_https_redirect_and_hsts()
     test_public_base_normalization()
+    test_ad_gate_and_extra_slot()
     print(f"\nAll {len(PASSED)} tests passed ✅")
 
 

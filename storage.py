@@ -188,6 +188,9 @@ DEFAULTS = {
     "ad_enabled": "1",
     "ad_position": "all",   # top | bottom | all | off
     "ad_code": "",          # Adsterra zone snippet, pasted by admin
+    "ad_gate": "off",       # off | popunder | redirect  (click-to-copy gate)
+    "ad_link": "",          # advertiser URL used by the redirect gate
+    "ad_popunder_code": "", # Adsterra popunder snippet (compliant popup ads)
 }
 
 

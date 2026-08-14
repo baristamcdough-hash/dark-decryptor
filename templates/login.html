@@ -3,7 +3,7 @@
 {% block content %}
 <div class="wrap login-wrap">
   <div class="vault-card login-card">
-    <div class="login-ico">🔐</div>
+    <div class="login-ico">{{ icon('lock', 'ic-xl') }}</div>
     <h1 class="login-title">Admin login</h1>
     {% if error %}<div class="login-error">{{ error }}</div>{% endif %}
     <form method="post" action="/admin/login">

@@ -43,6 +43,9 @@ templates = Jinja2Templates(directory=str(BASE_DIR / "templates"))
 templates.env.filters["fmt_ts"] = lambda ts: time.strftime(
     "%Y-%m-%d %H:%M", time.gmtime(float(ts))
 )
+templates.env.globals["icon"] = lambda name, cls="": (
+    f'<svg class="ic {cls}" aria-hidden="true"><use href="#i-{name}"/></svg>'
+)
 log = logging.getLogger("poriotcloud")
 
 
@@ -182,6 +185,9 @@ def _ad_context() -> dict:
         "ad_enabled": s["ad_enabled"] == "1",
         "ad_position": s["ad_position"],
         "ad_code": s["ad_code"],
+        "ad_gate": s["ad_gate"],
+        "ad_link": s["ad_link"],
+        "ad_popunder_code": s["ad_popunder_code"],
     }
 
 
@@ -227,6 +233,7 @@ async def vault_page(request: Request, vid: str):
             "name": row["name"],
             "cfg": cfg,
             "config_text": config_text,
+            "filename": decoder.suggest_filename(cfg),
             "remaining": remaining,
             "created_at": row["created_at"],
             "expires_at": row["expires_at"],
@@ -359,14 +366,22 @@ async def admin_settings(
     ad_enabled: str = Form("0"),
     ad_position: str = Form("all"),
     ad_code: str = Form(""),
+    ad_gate: str = Form("off"),
+    ad_link: str = Form(""),
+    ad_popunder_code: str = Form(""),
 ):
     _require_admin(request)
     if ad_position not in ("top", "bottom", "all"):
         ad_position = "all"
+    if ad_gate not in ("off", "popunder", "redirect"):
+        ad_gate = "off"
     storage.save_settings({
         "ad_enabled": "1" if ad_enabled == "1" else "0",
         "ad_position": ad_position,
         "ad_code": ad_code,
+        "ad_gate": ad_gate,
+        "ad_link": ad_link.strip(),
+        "ad_popunder_code": ad_popunder_code,
     })
     return RedirectResponse("/admin?saved=1", status_code=303)
 

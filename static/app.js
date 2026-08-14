@@ -1,5 +1,85 @@
 /* PoriotCloud Vault — client-side behavior */
 
+// ---------------- toast (ad-gate feedback) ----------------
+function showToast(html) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = html;
+  document.body.appendChild(t);
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () { t.classList.add('show'); });
+  });
+  setTimeout(function () {
+    t.classList.remove('show');
+    setTimeout(function () { t.remove(); }, 400);
+  }, 4000);
+}
+
+// ---------------- ad gate + download (works on vault pages) ----------------
+(function () {
+  var gate = document.body.getAttribute('data-ad-gate') || 'off';
+  var adLink = document.body.getAttribute('data-ad-link') || '';
+  if (!gate || gate === 'off') return;
+
+  // Popunder: Adsterra's own format — fires on page load, never blocks the user
+  if (gate === 'popunder') {
+    var ps = document.getElementById('popunder');
+    if (ps) {
+      var code = ps.textContent.trim();
+      var tmp = document.createElement('div');
+      tmp.innerHTML = code;
+      var injected = false;
+      tmp.querySelectorAll('script').forEach(function (s) {
+        var ns = document.createElement('script');
+        if (s.src) ns.src = s.src; else ns.text = s.text;
+        document.head.appendChild(ns);
+        injected = true;
+      });
+      if (!injected && /^https?:/.test(code)) {
+        var ns2 = document.createElement('script');
+        ns2.src = code;
+        document.head.appendChild(ns2);
+      }
+    }
+    return;
+  }
+
+  // Redirect gate: first click opens the ad in a new tab, user returns and
+  // clicks again — then the action runs. (sessionStorage remembers per visit)
+  window.__gateCheck = function () {
+    if (sessionStorage.getItem('pv_gate_ok')) return true;
+    if (!adLink) return true; // no link configured — never block
+    window.open(adLink, '_blank');
+    sessionStorage.setItem('pv_gate_ok', '1');
+    showToast('Ad opened in a new tab — come back and click <b>again</b> to copy/download');
+    return false;
+  };
+
+  function rawJson() {
+    var cfg = document.getElementById('cfg');
+    if (!cfg) return null;
+    try { return JSON.parse(cfg.textContent.trim()); } catch (e) { return null; }
+  }
+
+  var dlBtn = document.getElementById('dlBtn');
+  if (dlBtn) {
+    dlBtn.addEventListener('click', function () {
+      if (window.__gateCheck && !window.__gateCheck()) return;
+      var text = rawJson();
+      if (!text) return;
+      var blob = new Blob([text], { type: 'application/json' });
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = document.body.getAttribute('data-fname') || 'decoded_config.json';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      var label = document.getElementById('dlLabel');
+      if (label) { label.textContent = 'Downloaded!'; setTimeout(function () { label.textContent = 'Download .json'; }, 1600); }
+    });
+  }
+})();
+
 // ---------------- vault page: syntax highlighting + copy + countdown ----------------
 (function () {
   var cfgScript = document.getElementById('cfg');
@@ -46,8 +126,10 @@
 
   // copy button
   var copyBtn = document.getElementById('copyBtn');
-  if (copyBtn) {
+  var copyLabel = document.getElementById('copyLabel');
+  if (copyBtn && copyLabel) {
     copyBtn.addEventListener('click', function () {
+      if (window.__gateCheck && !window.__gateCheck()) return;
       (navigator.clipboard ? navigator.clipboard.writeText(raw) : Promise.reject())
         .catch(function () {
           var ta = document.createElement('textarea');
@@ -55,10 +137,10 @@
           document.execCommand('copy'); ta.remove();
         });
       copyBtn.classList.add('copied');
-      copyBtn.textContent = '✅ Copied!';
+      copyLabel.textContent = 'Copied!';
       setTimeout(function () {
         copyBtn.classList.remove('copied');
-        copyBtn.textContent = '📋 Copy JSON';
+        copyLabel.textContent = 'Copy JSON';
       }, 1600);
     });
   }
@@ -93,7 +175,8 @@
   function start(file) {
     if (!file) return;
     if (!/\.dark$/i.test(file.name) && !/dark/i.test(file.name)) {
-      alert('Please choose a .dark file'); return;
+      showToast('Please choose a <b>.dark</b> file');
+      return;
     }
     overlay.hidden = false;
     var fill = document.getElementById('ovFill');
@@ -133,13 +216,13 @@
         } else {
           setTimeout(function () {
             overlay.hidden = true;
-            alert('❌ ' + (res.d.detail || 'Could not decode that file'));
+            showToast('❌ ' + (res.d.detail || 'Could not decode that file'));
           }, 1200);
         }
       })
       .catch(function () {
         overlay.hidden = true;
-        alert('❌ Network error — is the server reachable?');
+        showToast('❌ Network error — is the server reachable?');
       });
   }
 
@@ -158,6 +241,7 @@
 (function () {
   document.querySelectorAll('[data-seg]').forEach(function (seg) {
     var hidden = document.getElementById(seg.dataset.seg);
+    if (!hidden) return;
     seg.querySelectorAll('button').forEach(function (btn) {
       btn.addEventListener('click', function () {
         seg.querySelectorAll('button').forEach(function (b) { b.classList.remove('on'); });

@@ -4,11 +4,11 @@
 <div class="wrap">
   <div class="m-head">
     <div>
-      <h1>📊 Overview</h1>
+      <h1>{{ icon('chart') }} Overview</h1>
       <div class="sub">vault.poriot.ke · everything running smoothly</div>
     </div>
     <div style="display:flex;gap:8px">
-      <a class="btn btn-ghost" href="/admin/logout">↩️ Log out</a>
+      <a class="btn btn-ghost" href="/admin/logout">{{ icon('logout') }} Log out</a>
     </div>
   </div>
 
@@ -21,7 +21,7 @@
 
   <div class="grid">
     <div class="card">
-      <h2>📢 Adsterra Ad Manager</h2>
+      <h2>{{ icon('megaphone') }} Adsterra Ad Manager</h2>
       <form method="post" action="/admin/settings">
         <div class="ad-toggle">
           <div>
@@ -38,7 +38,7 @@
           <div class="seg" data-seg="ad_position">
             <button type="button" data-val="top" {{ 'class=on' if settings.ad_position == 'top' }}>Top banner</button>
             <button type="button" data-val="bottom" {{ 'class=on' if settings.ad_position == 'bottom' }}>Bottom banner</button>
-            <button type="button" data-val="all" {{ 'class=on' if settings.ad_position == 'all' }}>Both</button>
+            <button type="button" data-val="all" {{ 'class=on' if settings.ad_position == 'all' }}>Both + extra</button>
           </div>
           <input type="hidden" name="ad_position" id="ad_position" value="{{ settings.ad_position }}">
         </div>
@@ -46,15 +46,37 @@
           <label>Adsterra zone code</label>
           <textarea name="ad_code" placeholder="Paste your Adsterra zone <script>/<iframe> snippet here…">{{ settings.ad_code }}</textarea>
         </div>
+
+        <div class="field">
+          <label>Click gate (copy / download)</label>
+          <div class="seg" data-seg="ad_gate">
+            <button type="button" data-val="off" {{ 'class=on' if settings.ad_gate == 'off' }}>Off</button>
+            <button type="button" data-val="popunder" {{ 'class=on' if settings.ad_gate == 'popunder' }}>Popunder</button>
+            <button type="button" data-val="redirect" {{ 'class=on' if settings.ad_gate == 'redirect' }}>Redirect</button>
+          </div>
+          <input type="hidden" name="ad_gate" id="ad_gate" value="{{ settings.ad_gate }}">
+          <div class="gate-hint">
+            <b>Popunder</b> — Adsterra's own popup format (compliant, recommended).
+            <b>Redirect</b> — opens your ad link in a new tab before copy/download (⚠️ link-locking is against Adsterra ToS and can get the account banned).
+          </div>
+        </div>
+        <div class="field" id="fAdLink">
+          <label>Ad link (for Redirect gate)</label>
+          <input type="url" name="ad_link" class="text-input" value="{{ settings.ad_link }}" placeholder="https://your-advertiser-link.com">
+        </div>
+        <div class="field" id="fPopunder">
+          <label>Adsterra popunder code</label>
+          <textarea name="ad_popunder_code" placeholder="Paste your Adsterra popunder <script> snippet here…">{{ settings.ad_popunder_code }}</textarea>
+        </div>
         <div class="save-row">
           <span class="saved" id="saved">✅ Saved</span>
-          <button class="btn btn-primary" type="submit">💾 Save settings</button>
+          <button class="btn btn-primary" type="submit">{{ icon('save') }} Save settings</button>
         </div>
       </form>
     </div>
 
     <div class="card">
-      <h2>🗄️ Recent vaults</h2>
+      <h2>{{ icon('database') }} Recent vaults</h2>
       {% if vaults %}
       <table>
         <tr><th>ID</th><th>Name</th><th>Expires</th><th>Views</th><th>Status</th><th></th></tr>
@@ -67,7 +89,7 @@
           <td>{% if v.expired %}<span class="st dead">destroyed</span>{% elif v.remaining_h < 3 %}<span class="st warn">expiring</span>{% else %}<span class="st ok">active</span>{% endif %}</td>
           <td>
             <form method="post" action="/admin/delete/{{ v.id }}" onsubmit="return confirm('Delete this vault now?')">
-              <button class="del" type="submit">✕</button>
+              <button class="del" type="submit" title="Delete">{{ icon('x') }}</button>
             </form>
           </td>
         </tr>
